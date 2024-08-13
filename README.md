@@ -16,6 +16,13 @@ dynamic DNS domain for your router.
 But you might prefer a script like this that allows your
 router to update the records at Cloudflare directly.
 
+## gen-script and gen-script-ipinfo
+
+Both `gen-script` and `gen-script-ipinfo` do samething but with different approaches:
+
+* `gen-script` will use local interfaces address
+* `gen-script-ipinfo` will use return of [ipinfo.io][https://ipinfo.io]
+
 ## Setup
 
 `gen-script` will query the Cloudflare API and generate a
@@ -27,6 +34,8 @@ variables:
 * `TOKEN` - an API token that you've created in the Cloudflare dashboard. See below.
 * `ZONE_ID` - the Zone ID, found on the Cloudflare Overview page
 for the top-level domain containing the domain records.
+* `$INTERFACE_V4` - interface from Mikrotik to get Public IPv4
+* `$INTERFACE_V6` - interface from Mirkotik to get Public IPv6 - This one is optional.
 
 I recommend using [direnv](https://direnv.net/) to set these variables when you
 change to this directory.
@@ -55,6 +64,9 @@ It will use the Cloudflare API to find the DNS record ids for the
 domain and wildcard subdomain of `DOMAIN` within the zone
 identified by `ZONE_ID`.
 The value of `TOKEN` will be used to authenticate the API requests.
+
+The values from `INTERFACE_V4` and `INTERFACE_V6` will be used to get 
+interface address.
 
 `gen-script` will output the script to be loaded on to your
 router by following these steps:

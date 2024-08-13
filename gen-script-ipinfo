@@ -23,34 +23,24 @@ function dns_ids_v6() {
 }
 
 DNS_IDS_V4=`dns_ids_v4`
-
-if [ ! -z "$INTERFACE_V6" ]
-then
-  DNS_IDS_V6=`dns_ids_v6`
-fi
+DNS_IDS_V6=`dns_ids_v6`
 
 cat <<EOT
 :global mcdPreviousIPv4
 :local mcdCurrentIPv4
-:local mcdCurrentIPv4Unparsed
 
-:set mcdCurrentIPv4Unparsed [/ip address get [:pick [find where interface=$INTERFACE_V4]  0] address ]
-:for i from=( [:len \$mcdCurrentIPv4Unparsed ] - 1) to=0 do={:if ( [:pick \$mcdCurrentIPv4Unparsed  \$i] = "/") do={:set mcdCurrentIPv4 [:pick \$mcdCurrentIPv4Unparsed  0 \$i]}}
+:local mcdCurrentIPv4 ([/tool fetch url="http://ipinfo.io/ip" mode=http as-value output=user]->"data")
 
 EOT
 
-if [ ! -z "$INTERFACE_V6" ]
-then
-  cat <<EOT
+cat <<EOT
 :global mcdPreviousIPv6
 :local mcdCurrentIPv6
 :local mcdCurrentIPv6Unparsed
 
-:set mcdCurrentIPv6Unparsed [/ipv6 address get [:pick [find where interface=$INTERFACE_V6]  1] address ]
-:for i from=( [:len \$mcdCurrentIPv6Unparsed ] - 1) to=0 do={:if ( [:pick \$mcdCurrentIPv6Unparsed  \$i] = "/") do={:set mcdCurrentIPv6 [:pick \$mcdCurrentIPv6Unparsed  0 \$i]}}
+:local mcdCurrentIPv6 ([/tool fetch url="http://v6.ipinfo.io/ip" mode=http as-value output=user]->"data")
 
 EOT
-fi
 
 cat <<EOT
 :if (\$mcdCurrentIPv4 != \$mcdPreviousIPv4) do={
@@ -78,9 +68,7 @@ cat <<EOT
 
 EOT
 
-if [ ! -z "$INTERFACE_V6" ]
-then
-  cat <<EOT
+cat <<EOT
 :if (\$mcdCurrentIPv6 != \$mcdPreviousIPv6) do={
   :log info "mcd: new IPv6 \$mcdCurrentIPv6 (was \$mcdPreviousIPv6)"
   :set mcdPreviousIPv6 \$mcdCurrentIPv6
@@ -104,4 +92,3 @@ done
 cat <<EOT
 }
 EOT
-fi
